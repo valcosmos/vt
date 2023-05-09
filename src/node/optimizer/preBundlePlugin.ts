@@ -52,7 +52,7 @@ export function preBundlePlugin(deps: Set<string>): Plugin {
           const root = process.cwd()
           const entryPath = normalizePath(resolve.sync(id, { basedir: root }))
           const code = await fs.readFile(entryPath, 'utf-8')
-          const [imports, exports] = await parse(code)
+          const [imports, exports] = (await parse(code)) as any
           let proxyModule = []
           // cjs
           if (!imports.length && !exports.length) {
