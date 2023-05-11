@@ -3,6 +3,8 @@ import { isJSRequest, cleanUrl } from '../../utils'
 import { ServerContext } from '../index'
 import createDebug from 'debug'
 
+import { isCSSRequest, isImportRequest } from '../../utils'
+
 const debug = createDebug('dev')
 
 export async function transformRequest(url: string, serverContext: ServerContext) {
@@ -31,7 +33,8 @@ export function transformMiddleware(serverContext: ServerContext): NextHandleFun
     const url = req.url
     debug('transformMiddleware: %s', url)
     // transform JS request
-    if (isJSRequest(url)) {
+    // if (isJSRequest(url)) {
+    if (isJSRequest(url) || isCSSRequest(url) || isImportRequest(url)) {
       // 核心编译函数
       let result = await transformRequest(url, serverContext)
       if (!result) {

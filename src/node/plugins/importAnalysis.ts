@@ -32,13 +32,19 @@ export function importAnalysisPlugin(): Plugin {
         // str.slice(s, e) => 'react'
         const { s: modStart, e: modEnd, n: modSource } = importInfo
         if (!modSource) continue
+        // 静态资源
+        if (modSource.endsWith('.svg')) {
+          // 加上 ?import 后缀
+          const resolvedUrl = path.join(path.dirname(id), modSource)
+          ms.overwrite(modStart, modEnd, `${resolvedUrl}?import`)
+          continue
+        }
         // 第三方库: 路径重写到预构建产物的路径
         if (BARE_IMPORT_RE.test(modSource)) {
           const bundlePath = normalizePath(path.join('/', PRE_BUNDLE_DIR, `${modSource}.js`))
           ms.overwrite(modStart, modEnd, bundlePath)
         } else if (modSource.startsWith('.') || modSource.startsWith('/')) {
           // 直接调用插件上下文的 resolve 方法，会自动经过路径解析插件的处理
-          console.log(this)
           const resolved = await this.resolve(modSource, id)
           if (resolved) {
             ms.overwrite(modStart, modEnd, resolved.id)

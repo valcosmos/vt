@@ -9,6 +9,7 @@ import { createPluginContainer, PluginContainer } from '../pluginContainer'
 import { indexHtmlMiddware } from './middlewares/indexHtml'
 import { Plugin } from '../plugin'
 import { transformMiddleware } from './middlewares/transform'
+import { staticMiddleware } from './middlewares/static'
 
 export interface ServerContext {
   root: string
@@ -34,6 +35,7 @@ export async function startDevServer() {
   // 处理入口 HTML 资源
   app.use(indexHtmlMiddware(serverContext))
   app.use(transformMiddleware(serverContext))
+  app.use(staticMiddleware(serverContext))
 
   for (const plugin of plugins) {
     if (plugin.configureServer) {
