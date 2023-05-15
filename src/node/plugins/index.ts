@@ -4,6 +4,7 @@ import { cssPlugin } from './css'
 import { esbuildTransformPlugin } from './esbuild'
 import { importAnalysisPlugin } from './importAnalysis'
 import { resolvePlugin } from './resolve'
+import { clientInjectPlugin } from './clientInject'
 
 export function resolvePlugins(): Plugin[] {
   // 下一部分会逐个补充插件逻辑
@@ -13,6 +14,7 @@ export function resolvePlugins(): Plugin[] {
     esbuildTransformPlugin(),
     importAnalysisPlugin(),
     cssPlugin(),
-    assetPlugin()
+    assetPlugin(),
+    clientInjectPlugin()
   ]
 }

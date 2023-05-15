@@ -11,14 +11,26 @@ import { Plugin } from '../plugin'
 import { transformMiddleware } from './middlewares/transform'
 import { staticMiddleware } from './middlewares/static'
 
+import { ModuleGraph } from '../ModuleGraph'
+
+import chokidar, { FSWatcher } from 'chokidar'
+import { createWebSocketServer } from '../ws'
+
+import { bindingHMREvents } from '../hmr'
+import { normalizePath } from '../utils'
+
 export interface ServerContext {
   root: string
   pluginContainer: PluginContainer
   app: connect.Server
   plugins: Plugin[]
+  moduleGraph: ModuleGraph
+  ws: { send: (data: any) => void; close: () => void }
+  watcher: FSWatcher
 }
 
 export async function startDevServer() {
+  const moduleGraph = new ModuleGraph((url) => pluginContainer.resolveId(url))
   const app = connect()
   const root = process.cwd()
   const startTime = Date.now()
@@ -26,12 +38,23 @@ export async function startDevServer() {
   const plugins = resolvePlugins()
   const pluginContainer = createPluginContainer(plugins)
 
+  const watcher = chokidar.watch(root, {
+    ignored: ['**/node_modules/**', '**/.git/**'],
+    ignoreInitial: true
+  })
+
+  const ws = createWebSocketServer(app)
+
   const serverContext: ServerContext = {
     root: process.cwd(),
     app,
     pluginContainer,
-    plugins
+    plugins,
+    moduleGraph,
+    ws,
+    watcher
   }
+  bindingHMREvents(serverContext)
   // 处理入口 HTML 资源
   app.use(indexHtmlMiddware(serverContext))
   app.use(transformMiddleware(serverContext))

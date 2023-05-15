@@ -1,6 +1,6 @@
 import os from 'os'
 import path from 'path'
-import { HASH_RE, JS_TYPES_RE, QEURY_RE } from '../constants/index'
+import { CLIENT_PUBLIC_PATH, HASH_RE, JS_TYPES_RE, QEURY_RE } from '../constants/index'
 
 export function slash(p: string): string {
   return p.replace(/\\/g, '/')
@@ -37,4 +37,10 @@ export function getShortName(file: string, root: string) {
 
 export function removeImportQuery(url: string): string {
   return url.replace(/\?import$/, '')
+}
+
+const INTERNAL_LIST = [CLIENT_PUBLIC_PATH, '/@react-refresh']
+
+export function isInternalRequest(url: string): boolean {
+  return INTERNAL_LIST.includes(url)
 }
